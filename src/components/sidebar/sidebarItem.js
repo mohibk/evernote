@@ -11,7 +11,7 @@ export default function SidebarItem({
 }) {
   const handleDeleteNote = (note) => {
     if (window.confirm(`Are you sure you want to delete: ${note.title}`)) {
-      deleteNote(note);
+      deleteNote(note.docId);
     }
   };
 

@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useCallback, useRef } from "react";
+import { useState } from "react";
 import ReactQuill from "react-quill";
-import { debounce } from "../../helpers";
+import _ from "lodash";
 
 export default function Editor({
   selectedNote,
@@ -9,27 +9,21 @@ export default function Editor({
   notes,
   updateNote,
 }) {
-  const [text, setText] = useState("");
-  const [title, setTitle] = useState("");
-  const [id, setId] = useState("");
+  const [text, setText] = useState(() => selectedNote.body);
+  const [title, setTitle] = useState(() => selectedNote.title);
+  const [id, setId] = useState(() => selectedNote.docId);
 
-  const updateBody = async (val) => {
-    setText(val);
-    update();
+  const handleChange = (e) => {
+    setText(e);
+    debounce(id, title, text);
   };
 
-  const update = useRef(
-    debounce(() => {
-      updateNote(id, { title: title, body: text });
-    }, 1500)
-  ).current;
-
-  //   const update = useCallback(
-  //     debounce(() => {
-  //         console.log('updating database!')
-  //     }, 1500),
-  //     []
-  // )
+  const debounce = useCallback(
+    _.debounce((id, title, text) => {
+      updateNote(id, { title, text });
+    }, 1500),
+    []
+  );
 
   useEffect(() => {
     if (selectedNote.docId !== id) {
@@ -37,13 +31,11 @@ export default function Editor({
       setTitle(selectedNote.title);
       setId(selectedNote.docId);
     }
-
-    // console.log("text", text);
-  }, [selectedNote, id]);
+  }, [id, selectedNote]);
 
   return (
     <div className="col-span-3">
-      <ReactQuill value={text} onChange={updateBody} className="h-screen" />
+      <ReactQuill value={text} onChange={handleChange} className="h-screen" />
     </div>
   );
 }

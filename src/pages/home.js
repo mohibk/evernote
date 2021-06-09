@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Editor from "../components/editor/editor";
 import Sidebar from "../components/sidebar";
-import { firebase } from "../lib/firebase";
+import { firebase, FieldValue } from "../lib/firebase";
 // import { getAllNotes } from "../services/firebase";
 
 export default function Home() {
@@ -14,24 +14,39 @@ export default function Home() {
     setSelectedNoteIndex(index);
   };
 
+  const createNote = async (title) => {
+    const notes = {
+      title,
+      body: "",
+      timestamp: FieldValue.serverTimestamp(),
+    };
+    await firebase.firestore().collection("notes").add(notes);
+  };
+
   const updateNote = (id, noteObj) => {
-    console.log(id, noteObj);
+    firebase.firestore().collection("notes").doc(id).update({
+      title: noteObj.title,
+      body: noteObj.text,
+      timestamp: FieldValue.serverTimestamp(),
+    });
+  };
+
+  const deleteNote = (id) => {
+    firebase.firestore().collection("notes").doc(id).delete();
   };
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      await firebase
-        .firestore()
-        .collection("notes")
-        .onSnapshot((serverUpdate) => {
-          const notes = serverUpdate.docs.map((item) => ({
-            ...item.data(),
-            docId: item.id,
-          }));
-          setNotes(notes);
-        });
-    };
-    fetchNotes();
+    firebase
+      .firestore()
+      .collection("notes")
+      // .orderBy("timestamp", "desc")
+      .onSnapshot((serverUpdate) => {
+        const notes = serverUpdate.docs.map((item) => ({
+          ...item.data(),
+          docId: item.id,
+        }));
+        setNotes(notes);
+      });
   }, []);
 
   return (
@@ -40,6 +55,8 @@ export default function Home() {
         notes={notes}
         selectedNoteIndex={selectedNoteIndex}
         selectNote={selectNote}
+        createNote={createNote}
+        deleteNote={deleteNote}
       />
       {selectedNote && (
         <Editor
