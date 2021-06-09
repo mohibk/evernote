@@ -15,12 +15,27 @@ export default function Home() {
   };
 
   const createNote = async (title) => {
-    const notes = {
+    const noteObj = {
       title,
       body: "",
       timestamp: FieldValue.serverTimestamp(),
     };
-    await firebase.firestore().collection("notes").add(notes);
+    const newNote = await firebase.firestore().collection("notes").add(noteObj);
+    // console.log(
+    //   notes.indexOf(notes.filter((note) => note.docId === newNote.id))
+    // );
+
+    setNotes([...notes, noteObj]);
+
+    const funcOne = () => {
+      console.log(notes);
+      const res = notes.filter((note) => note.docId === newNote.id);
+      console.log(res);
+    };
+
+    if (newNote?.id) {
+      funcOne();
+    }
   };
 
   const updateNote = (id, noteObj) => {
@@ -47,6 +62,8 @@ export default function Home() {
         }));
         setNotes(notes);
       });
+
+    console.log("notes in useeffect", notes);
   }, []);
 
   return (

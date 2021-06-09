@@ -22,13 +22,11 @@ export default function Sidebar({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(title);
     createNote(title);
     setTitle("");
   };
 
   const handleDelete = (id) => {
-    console.log("deleted", id);
     deleteNote(id);
   };
 

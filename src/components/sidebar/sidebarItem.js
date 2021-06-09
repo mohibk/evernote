@@ -23,7 +23,7 @@ export default function SidebarItem({
       <ListItemText
         onClick={() => selectNote(note, index)}
         className="w-full"
-        primary={note.title}
+        primary={truncator(note.title, 22)}
         secondary={truncator(removeHTMLTags(note.body), 25)}
       />
       <DeleteIcon

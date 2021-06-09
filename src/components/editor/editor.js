@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useState } from "react";
+import BorderColorIcon from "@material-ui/icons/BorderColor";
 import ReactQuill from "react-quill";
 import _ from "lodash";
 
@@ -13,9 +14,14 @@ export default function Editor({
   const [title, setTitle] = useState(() => selectedNote.title);
   const [id, setId] = useState(() => selectedNote.docId);
 
-  const handleChange = (e) => {
+  const updateBody = (e) => {
     setText(e);
-    debounce(id, title, text);
+    debounce(id, title, e);
+  };
+
+  const updateTitle = ({ target }) => {
+    setTitle(target.value);
+    debounce(id, target.value, text);
   };
 
   const debounce = useCallback(
@@ -35,7 +41,16 @@ export default function Editor({
 
   return (
     <div className="col-span-3">
-      <ReactQuill value={text} onChange={handleChange} className="h-screen" />
+      <div className="flex bg-indigo-500 py-0.5 space-x-3 px-2">
+        <BorderColorIcon />
+        <input
+          type="text"
+          value={title}
+          className="bg-indigo-500 text-white focus:outline-none py-1 w-2/3"
+          onChange={updateTitle}
+        />
+      </div>
+      <ReactQuill value={text} onChange={updateBody} className="h-screen" />
     </div>
   );
 }
